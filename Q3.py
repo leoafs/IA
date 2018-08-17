@@ -48,7 +48,7 @@ def mutar(filho):
     if i == 1:
         filho[4]+=3
     return filho
-aux=popula(10)
+aux=popula(100)
 filhos= []
 for i in range(5):
     a=sele(aux)
