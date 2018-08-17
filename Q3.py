@@ -29,22 +29,35 @@ def sele(antenas):
             selecao.append(antenas[randint(len(antenas)//2+1,len(antenas)-1)])
 
     return selecao
-def cruzamento(selecao,tamanho):
+def cruzamento(selecao):
     filho1=[]
     filho2=[]
     for i in range(3):
         filho1.append(selecao[0][0][i])
     for i in range(3,6):
         filho1.append(selecao[1][0][i])
+    filho1=mutar(filho1)
     for i in range(3):
         filho2.append(selecao[1][0][i])
     for i in range(3,6):
         filho2.append(selecao[0][0][i])
-
-
+    filho2 = mutar(filho2)
     return filho1,filho2
-
+def mutar(filho):
+    i = randint(0,1)
+    if i == 1:
+        filho[4]+=3
+    return filho
 aux=popula(10)
-a=sele(aux)
-print(a)
-print(cruzamento(a,10))
+filhos= []
+for i in range(5):
+    a=sele(aux)
+    b=cruzamento(a)
+    z=fitnes(b[0])
+    aux2=[b[0],z]
+    filhos.append(aux2)
+    z = fitnes(b[1])
+    aux3 = [b[1], z]
+    filhos.append(aux3)
+filhos.sort(key=lambda a:a[1],reverse=True)
+print(filhos[0])
