@@ -1,48 +1,67 @@
-raiz=[3,3,1]
-arvore=[]
-arvore.append(raiz)
+import requests
+from random import randint
+def fitnes(antenas):
+    aux= requests.get('http://localhost:8080/antenna/simulate?phi1={}&theta1={}&phi2={}&theta2={}&phi3={}&theta3={}'.format(antenas[0],antenas[1],antenas[2],antenas[3],antenas[4],antenas[5]))
+    return float(aux.content.split()[0])
+def popula(tamanho):
+    antenas=[]
+    for i in range(tamanho):
+        antena = 6 * [0]
 
-def ida(i):
-
-        if arvore[i][0]==3 and arvore[i][1]==3:
-            arvore.append([1,1,0])
-            arvore.append([3,1,0])
-            arvore.append([1,3,0])
-        elif arvore[i][1]>arvore[i][0]:
-            arvore.append((-1,-1,-1))
-
-        elif arvore[i][0]>arvore[i][1]:
-            if arvore[i][0]==3 and arvore[i][1]==2:
-                arvore.append([2,1,0])
-                arvore.append([1,2,0])
-                arvore.append([3,0,0])
-            elif arvore[i][0]==2:
-                arvore.append([1,0,0])
-                return 0
-            elif arvore[i][0]==1:
-                arvore.append([0,0,0])
-                return 1
-        elif arvore[i][0]==2 and arvore[i][1]==2:
-            arvore.append([1,1,0])
-            arvore.append([2,0,0])
-            arvore.append([0,2,0])
-            return 0
+        antena[0]=randint(0,360)
+        antena[1] = randint(0, 360)
+        antena[2] = randint(0, 360)
+        antena[3] = randint(0, 360)
+        antena[4] = randint(0, 360)
+        antena[5] = randint(0, 360)
+        sinal=fitnes(antena)
+        aux=[antena,sinal]
+        antenas.append(aux)
+    antenas.sort(key=lambda a:a[1],reverse=True)
+    return  antenas
+def sele(antenas):
+    selecao=[]
+    for i in range(2):
+        a=randint(0,3)
+        if a==0 or a==1:
+            selecao.append(antenas[randint(0,len(antenas)//2)])
         else:
-            arvore.append([-1,-1,-1])
+            selecao.append(antenas[randint(len(antenas)//2+1,len(antenas)-1)])
 
-def volta(i):
-    if arvore[i][0] == 3 and arvore[i][1] == 1:
-        arvore.append([3, 2, 1])
-    elif arvore[i][0] ==2 and arvore[i][1]==2:
-        arvore.append((3, 2, 1))
-        arvore.append((2,3,1))
-    elif arvore[i][0]<arvore[i][1]:
-        arvore.append([-1,-1,-1])
-i=0
-while True:
-    ida(i)
-
-    for s in range(i+1,len(raiz)):
-        volta(s)
-
-print(arvore)
+    return selecao
+def cruzamento(selecao):
+    filho1=[]
+    filho2=[]
+    for i in range(3):
+        filho1.append(selecao[0][0][i])
+    for i in range(3,6):
+        filho1.append(selecao[1][0][i])
+    filho1=mutar(filho1)
+    for i in range(3):
+        filho2.append(selecao[1][0][i])
+    for i in range(3,6):
+        filho2.append(selecao[0][0][i])
+    filho2 = mutar(filho2)
+    return filho1,filho2
+def mutar(filho):
+    i = randint(0,1)
+    if i == 1:
+        filho[4]+=3
+    return filho
+resposta=[]
+for c in range(5):
+    aux=popula(100)
+    filhos= []
+    for i in range(5):
+        a=sele(aux)
+        b=cruzamento(a)
+        z=fitnes(b[0])
+        aux2=[b[0],z]
+        filhos.append(aux2)
+        z = fitnes(b[1])
+        aux3 = [b[1], z]
+        filhos.append(aux3)
+    filhos.sort(key=lambda a:a[1],reverse=True)
+    resposta.append(filhos[0])
+resposta.sort(key=lambda a:a[1],reverse=True)
+print(resposta[0])
